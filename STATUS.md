@@ -2,6 +2,10 @@
 
 **Playable technical vertical slice; Milestone A is not complete.** The original brief remains the acceptance criteria. This file deliberately records deviations rather than implying they are resolved.
 
+## Free public multiplayer deployment
+
+Vercel now connects to the user-created free Render backend at `https://virtual-diwali.onrender.com`. On 4 November 2026, two isolated Chrome sessions on the public Vercel site passed create/join, chat, firework launch, shared finale, photo download and reload/rejoin without mocks. All fifteen domain tests and TypeScript checks pass. The Render blueprint uses only a Free instance without a disk. Local room state is lost when the backend sleeps, restarts or redeploys; waking after idle can take about a minute. See docs/VERCEL.md for repeatable checks. This supersedes older public-deployment blockers below; sustained load, WAN voice and the remaining feature/art acceptance are still open.
+
 ## Published character update
 
 Development and production now load the same bundled male and female GLBs. The supplied female saree character has replaced HVGirl; the old cylindrical dress overlay and development-only model route are removed. Her source provenance is recorded separately in ASSETS.md and remains unverified. Male has five draft clips and female eleven; final animation quality, garment contact and the full original brief remain unfinished. The requirements audit tracks remaining acceptance work.

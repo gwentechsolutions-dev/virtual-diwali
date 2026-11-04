@@ -1,11 +1,9 @@
-# Optional persistent backend blueprint. Importing it creates a paid service;
-# it is not deployed merely by keeping this file in GitHub.
+# Optional free backend blueprint. Local room data is lost on sleep/restart.
 services:
   - type: web
     name: virtual-diwali-multiplayer
     runtime: node
-    plan: starter
-    numInstances: 1
+    plan: free
     repo: https://github.com/gwentechsolutions-dev/virtual-diwali
     branch: main
     buildCommand: npm ci --include=dev && npm run build
@@ -19,8 +17,4 @@ services:
       - key: PUBLIC_ORIGIN
         value: https://virtual-diwali.vercel.app
       - key: DATA_DIR
-        value: /var/data/rooms
-    disk:
-      name: room-data
-      mountPath: /var/data
-      sizeGB: 1
+        value: /tmp/virtual-diwali-rooms
