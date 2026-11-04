@@ -4,6 +4,6 @@ deepavali.example.com {
     header {
         X-Content-Type-Options nosniff
         Referrer-Policy same-origin
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+        Permissions-Policy "camera=(), microphone=(self), geolocation=()"
     }
 }

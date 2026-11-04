@@ -1,0 +1,26 @@
+# Optional persistent backend blueprint. Importing it creates a paid service;
+# it is not deployed merely by keeping this file in GitHub.
+services:
+  - type: web
+    name: virtual-diwali-multiplayer
+    runtime: node
+    plan: starter
+    numInstances: 1
+    repo: https://github.com/gwentechsolutions-dev/virtual-diwali
+    branch: main
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: '22'
+      - key: NODE_ENV
+        value: production
+      - key: PUBLIC_ORIGIN
+        value: https://virtual-diwali.vercel.app
+      - key: DATA_DIR
+        value: /var/data/rooms
+    disk:
+      name: room-data
+      mountPath: /var/data
+      sizeGB: 1

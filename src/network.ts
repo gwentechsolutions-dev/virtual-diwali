@@ -15,6 +15,19 @@ async function roomResponse(response:Response) {
  return data;
 }
 export class Connection {
+  api=api;
+  ws=ws;
+  private configured=false;
+  async configureBackend(){
+    if(this.configured||api||import.meta.env.VITE_WS_URL||!import.meta.env.PROD)return;
+    const response=await fetch('/api/game-config',{cache:'no-store'});
+    const config=await response.json().catch(()=>null);
+    // Same-origin Node deployments don't need a separate configuration route.
+    if(response.status===404||!config)return;
+    if(!response.ok)throw Error(config.error??'The multiplayer server is unavailable.');
+    if(typeof config.api!=='string'||typeof config.ws!=='string')throw Error('The multiplayer server connection is incomplete.');
+    this.api=config.api;this.ws=config.ws;this.configured=true;
+  }
   room?: Room;
   stopped = false;
   code = "";
@@ -37,9 +50,10 @@ export class Connection {
     this.profile = profile;
     this.stopped = false;
     this.onStatus("Connecting");
+    await this.configureBackend();
     let info;
     if (create) {
-      const r = await fetch(api + "/api/rooms", {
+      const r = await fetch(this.api + "/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ limit }),
@@ -48,7 +62,7 @@ export class Connection {
       if (!r.ok) throw Error(info.error ?? "Could not create celebration.");
     } else {
       const r = await fetch(
-        api + "/api/rooms/" + encodeURIComponent(code.trim().toUpperCase()),
+        this.api + "/api/rooms/" + encodeURIComponent(code.trim().toUpperCase()),
       );
       info = await roomResponse(r);
       if (!r.ok) throw Error(info.error ?? "Celebration not found.");
@@ -65,7 +79,7 @@ export class Connection {
     return this.code;
   }
   async join(roomId: string) {
-    const room = await new Client(ws).joinById(roomId, {
+    const room = await new Client(this.ws).joinById(roomId, {
       ...this.profile,
       secret: this.secret,
     });
@@ -115,7 +129,7 @@ export class Connection {
     );
     if (this.stopped) return;
     try {
-      const res = await fetch(api + "/api/rooms/" + this.code);
+      const res = await fetch(this.api + "/api/rooms/" + this.code);
       const info = await res.json();
       if (!res.ok) throw Error(info.error);
       await this.join(info.roomId);

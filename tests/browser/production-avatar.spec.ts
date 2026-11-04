@@ -17,3 +17,14 @@ test('production female preview uses bundled saree model without local files',as
  expect(requests.some(url=>url.includes('/local-character/')||url.endsWith('/assets/female.glb'))).toBe(false);
  expect(errors).toEqual([]);
 });
+test('production frontend creates a real room using runtime backend endpoints',async({page})=>{
+ test.skip(!process.env.PRODUCTION_REVIEW_URL,'Run against built Vite output.');
+ await page.route('**/api/game-config',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({api:'http://127.0.0.1:2567',ws:'ws://127.0.0.1:2567'})}));
+ await page.goto(process.env.PRODUCTION_REVIEW_URL!);
+ await page.getByRole('button',{name:'Create Celebration',exact:true}).click();
+ await page.getByLabel('Your name').fill('Production backend test');
+ const created=page.waitForResponse(r=>r.url()==='http://127.0.0.1:2567/api/rooms'&&r.request().method()==='POST'&&r.ok());
+ await page.getByRole('button',{name:'Create & enter celebration'}).click();
+ await created;await expect(page.locator('.game-ui')).toBeVisible();
+ await expect(page.locator('.connection-banner')).toHaveCount(0);
+});

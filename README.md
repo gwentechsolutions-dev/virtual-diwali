@@ -25,6 +25,7 @@ The frontend runs on 5173 and the server on 2567. For another device on the same
 - The textile shop is west of the street, the cracker shop east. Enter the open storefront to buy with free coins. Select a fabric, preview, purchase, then wear it.
 - Use **Gathering** to return to the celebration ground. Select a firework in **Festival bag**, choose **Place**, then position the ring by moving and press **Place & light**.
 - **Friends** contains the invitation, participant list and host controls. The host can lock joining, set 2–12 seats, grant coins, remove a guest, trigger the finale or end the room.
+- **Photo booth** (inside Friends or Settings) lets guests opt into a staged group photo. The host chooses Wave or Stand and starts a shared countdown. Participating guests are arranged together and receive a group camera; anyone can leave. Follow, Portrait and Group view presets and framed local downloads are available.
 - Sound starts only after entry or explicit enablement. Settings include volume, reduced flashes and graphics quality. Camera saves the rendered scene locally.
 
 ## Implemented
@@ -65,6 +66,8 @@ No paid service or external account is required for local use. A public machine 
 5. Confirm two browsers on different networks can join, reconnect and see the same finale before inviting the group.
 
 The default frontend uses the same host for HTTP and WSS in production. For split hosting, set `VITE_SERVER_URL` and `VITE_WS_URL` **before building**, and use the frontend's exact origin for `PUBLIC_ORIGIN`. Never put provider secrets in any `VITE_*` variable.
+
+For the Vercel frontend, `GAME_SERVER_URL` can instead point to the deployed backend through the runtime `/api/game-config` function. See [Vercel setup](docs/VERCEL.md). A frontend-only Vercel deployment does not run the multiplayer service.
 
 The `.env` file is loaded by `npm start`. Local `npm run dev` uses development defaults. Room codes and names are stored in the configured data directory. Rooms expire after 24 hours; expired records are removed by the cleanup described in the privacy document. Graceful shutdown and restart retain live rooms and their inventories. No cloud storage is used.
 
