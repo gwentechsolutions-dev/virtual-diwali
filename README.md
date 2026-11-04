@@ -21,7 +21,7 @@ The frontend runs on 5173 and the server on 2567. For another device on the same
 
 - WASD moves relative to the camera; Shift runs. Drag to rotate, scroll to zoom.
 - E interacts with a nearby shop or the entrance lamps. I opens inventory, M opens the map, G opens gestures, Space celebrates, Escape opens/closes settings.
-- On mobile, use the movement joystick, drag the scene to look, and tap E to interact.
+- On mobile/tablet, use the left thumbstick to move (outer edge sprints), the right thumbstick to look, and **Interact** for nearby shops/lamps. Both sticks work simultaneously and reset when interrupted. Portrait and landscape layouts respect safe areas. Touch devices default to Low graphics and a 30 FPS cap; Settings can increase graphics quality. Low disables shadows/glow and reduces render resolution and particles. These are workload limits, not a measured device-FPS guarantee.
 - The textile shop is west of the street, the cracker shop east. Enter the open storefront to buy with free coins. Select a fabric, preview, purchase, then wear it.
 - Use **Gathering** to return to the celebration ground. Select a firework in **Festival bag**, choose **Place**, then position the ring by moving and press **Place & light**.
 - **Friends** contains the invitation, participant list and host controls. The host can lock joining, set 2–12 seats, grant coins, remove a guest, trigger the finale or end the room.

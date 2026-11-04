@@ -42,6 +42,7 @@ import {
 } from "../shared/catalog";
 import "./style.css";
 import {VoiceControls} from './voice';
+import {TouchControls} from './TouchControls';
 type Panel =
   | "crackers"
   | "textiles"
@@ -76,7 +77,7 @@ function App() {
     [toast, setToast] = useState(""),
     [selected, setSelected] = useState("flowerpot"),
     [placing, setPlacing] = useState(false),
-    [quality, setQuality] = useState("high"),
+    [quality, setQuality] = useState(()=>matchMedia('(pointer: coarse)').matches||innerWidth<=700?'low':'high'),
     [reduced, setReduced] = useState(
       matchMedia("(prefers-reduced-motion: reduce)").matches,
     ),
@@ -687,17 +688,10 @@ function App() {
               </button>
             </nav>
           </div>
-          <Joystick
-            onMove={(x, y) => {
-              if (game.current) game.current.stick = { x, y };
-            }}
-          />
-          <button
-            className="mobile-interact"
-            onClick={() => game.current?.onInteract()}
-          >
-            E
-          </button>
+          <TouchControls disabled={!!panel||hideUI}
+            onMove={(x,y,run)=>{if(game.current){game.current.stick={x,y};game.current.touchRun=run;}}}
+            onLook={(x,y)=>{if(game.current)game.current.lookStick={x,y};}}
+            onInteract={()=>game.current?.onInteract()}/>
           {panel && (
             <div className="panel-scrim" onClick={() => setPanel(null)}>
               <aside
@@ -1341,44 +1335,6 @@ function AvatarPreview({
       ref={ref}
       aria-label="Rotate your 3D avatar preview"
     />
-  );
-}
-function Joystick({ onMove }: { onMove: (x: number, y: number) => void }) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const move = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
-    const b = e.currentTarget.getBoundingClientRect(),
-      x = (e.clientX - b.x - b.width / 2) / 40,
-      y = (e.clientY - b.y - b.height / 2) / 40,
-      len = Math.max(1, Math.hypot(x, y));
-    setPosition({ x: x / len, y: y / len });
-    onMove(x / len, y / len);
-  };
-  return (
-    <div
-      className="joystick"
-      aria-label="Touch movement joystick"
-      onPointerDown={(e) => {
-        e.currentTarget.setPointerCapture(e.pointerId);
-        move(e);
-      }}
-      onPointerMove={move}
-      onPointerUp={(e) => {
-        e.currentTarget.releasePointerCapture(e.pointerId);
-        setPosition({ x: 0, y: 0 });
-        onMove(0, 0);
-      }}
-      onPointerCancel={() => {
-        setPosition({ x: 0, y: 0 });
-        onMove(0, 0);
-      }}
-    >
-      <span
-        style={{
-          transform: `translate(${position.x * 35}px,${position.y * 35}px)`,
-        }}
-      />
-    </div>
   );
 }
 function FireworkIcon({ kind, color }: { kind: string; color: string }) {

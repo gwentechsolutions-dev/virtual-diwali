@@ -33,6 +33,10 @@ export class FestivalWorld {
   offset = 0;
   keys = new Set<string>();
   stick = { x: 0, y: 0 };
+  lookStick={x:0,y:0};
+  touchRun=false;
+  mobile=matchMedia('(pointer: coarse)').matches||innerWidth<=700;
+  glow:GlowLayer;
   inputBlocked = false;
   reduced = false;
   quality = "high";
@@ -73,6 +77,7 @@ export class FestivalWorld {
     // Skinned PBR materials can exceed the driver's uniform-block limit even
     // when ordinary uniform capacity is sufficient (12 blocks on test GPU).
     this.engine.disableUniformBuffers=true;
+    if(this.mobile)this.engine.maxFPS=30;
     this.scene = new Scene(this.engine);
     // Keep Babylon's BRDF lookup in its original RGBD form. PBR shaders decode
     // it directly, avoiding the asynchronous GPU conversion surviving disposal
@@ -125,12 +130,13 @@ export class FestivalWorld {
     sun.intensity = 0.7;
     sun.diffuse = new Color3(1, 0.78, 0.53);
     sun.position = new Vector3(12, 25, -10);
-    this.shadows = new ShadowGenerator(1024, sun);
+    this.shadows = new ShadowGenerator(this.mobile?512:1024, sun);
     this.shadows.useBlurExponentialShadowMap = true;
     this.shadows.blurKernel = 12;
     const glow = new GlowLayer("festival-glow", this.scene, {
       blurKernelSize: 32,
     });
+    this.glow=glow;
     glow.intensity = 0.35;
     // Keep light topology stable: event creation/disposal must not continually
     // invalidate every world material's shader during asynchronous compilation.
@@ -758,6 +764,10 @@ export class FestivalWorld {
       now = this.now();
     if (this.disposed) return;
     if (this.snapshot) {
+      if(!this.inputBlocked&&!this.preview){
+        this.camera.alpha-=this.lookStick.x*dt*1.8;
+        this.camera.beta=Math.max(this.camera.lowerBetaLimit??.3,Math.min(this.camera.upperBetaLimit??2.6,this.camera.beta-this.lookStick.y*dt*1.5));
+      }
       for(const action of this.snapshot.shopActions??[]) {
         if(action.start<=now&&action.start+action.duration>now&&!this.shopPresentations.has(action.id))
           this.shopPresentations.set(action.id,new ShopPresentation(action,this.scene));
@@ -883,7 +893,7 @@ export class FestivalWorld {
           dx = -Math.cos(a) * forward - Math.sin(a) * right;
           dz = -Math.sin(a) * forward + Math.cos(a) * right;
         }
-        this.onInput(dx, dz, this.keys.has("shift"));
+        this.onInput(dx, dz, this.keys.has("shift")||this.touchRun);
         this.lastSend = performance.now();
       }
       if (this.placement) {
@@ -949,9 +959,10 @@ export class FestivalWorld {
     this.reduced = reduced;
     this.audio.volume = volume;
     this.engine.setHardwareScalingLevel(
-      quality === "low" ? 2 : quality === "medium" ? 1.5 : 1,
+      this.mobile?(quality==='low'?1.4:quality==='medium'?1.15:1):(quality === "low" ? 2 : quality === "medium" ? 1.5 : 1),
     );
-    this.shadows.getShadowMap()!.refreshRate = quality === "low" ? 0 : 1;
+    this.scene.shadowsEnabled=quality!=='low';
+    this.glow.isEnabled=quality!=='low';
     this.scene.lights.forEach((l) => {
       if (l.name === "flash" && reduced) l.intensity = 0;
     });
@@ -968,7 +979,7 @@ export class FestivalWorld {
     }
   };
   keyup = (e: KeyboardEvent) => this.keys.delete(e.key.toLowerCase());
-  blur = () => this.keys.clear();
+  blur = () => {this.keys.clear();this.stick={x:0,y:0};this.lookStick={x:0,y:0};this.touchRun=false;};
   resize = () => this.engine.resize();
   screenshot() {
     const photo=document.createElement('canvas');
