@@ -1,5 +1,5 @@
 import type {IncomingMessage,ServerResponse} from 'node:http';
-import {serverEndpoints} from '../shared/serverConfig';
+import {serverEndpoints} from '../shared/serverConfig.js';
 export default function handler(_req:IncomingMessage,res:ServerResponse){
  res.setHeader('Content-Type','application/json');res.setHeader('Cache-Control','no-store');
  try{
