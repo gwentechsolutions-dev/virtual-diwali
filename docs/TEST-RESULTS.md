@@ -1,0 +1,43 @@
+# Verification — 4 November 2026
+
+## Passed
+
+Latest user fixes: full 5-test browser suite and production build pass. After raising festoon lights above the resized greeting, the final rendering test passes again. Captures `festival-board-fitted.png`, `skyshot-camera.png` and male onboarding were reviewed. The sky check asserts camera height at least 0.69m and an upward forward vector greater than 0.4. Male dhoti export passes GLB validation. Firework volume defaults to 75%, with stronger effect gain and less distance attenuation; subjective listening on the user's device remains unverified. Voice test now verifies measured speaker activity, silence after microphone mute, Friends indicator text, master mute/restore on the actual remote audio element, incoming RTP and ended microphone tracks.
+
+Latest combined run: **5/5 browser tests** pass (Web Audio late seek/mute; two-client game/reconnect/photo; mobile layout; 72-effect and cloth rendering; two fake-microphone voice peers). The voice test confirms incoming audio RTP bytes on both peers and all captured microphone tracks become `ended` after leaving. **11/11 domain tests** and TypeScript pass; the atomic-file test requires normal filesystem access because this Windows sandbox denies rename operations even in its own temporary directory. The production build passed with voice controls integrated before the subsequent server-only save-error handling change.
+
+The complete browser rerun initially exposed a real server reliability issue: uncaught room-save rename errors terminated the server. Save failures now retain in-memory state, leave the previous completed save intact, mark the room dirty and retry on the existing timer. The injected-failure test verifies preservation and recovery. A persistent storage failure can still lose unsaved changes if the process terminates; use a writable reliable `DATA_DIR` for deployment. Competing old dev watchers were stopped; verification now uses a single non-watching server.
+
+- `npm run build`: strict TypeScript compilation and Vite production build. Main JavaScript chunk: approximately 6.74 MB uncompressed / 1.52 MB gzip. A reduced-import experiment was reverted after visual inspection exposed missing scene rendering. Additional lazy shader chunks and models are separate. Vite still warns about the large main chunk.
+- `npm test`: **7/7** server-domain tests. Guest restoration, private-state separation, duplicate sessions, locking and capacity, bans, shop distance, prices, wardrobe ownership, replay protection, finite placement validation, seeded events, effect caps, movement bounds and host-only finale control.
+- `npm run test:network`: real Colyseus connections to the running server, **8 simultaneous guests**, then a ninth late guest. Verified shared player lists, authoritative movement, duplicate purchase replay, balances, synchronized outfit and gesture, identical event IDs/seeds/outcomes/timestamps, late-join active events, preserved inventory on reconnect, non-host admin rejection and shared finale timestamp. Output: `test-results/network.json`.
+- `npm run test:browser`: **2/2** tests in installed headless Google Chrome. Two separate browser contexts create/join, see participants, exchange chat, place a firework, see the finale and rejoin after refresh. A separate 390×844 touch viewport checks onboarding, controls and horizontal overflow. No JavaScript page exceptions in the two-browser scenario. Screenshots are in `test-results/`.
+
+The first browser attempts failed before loading the app because the execution sandbox denied local network access. After running both servers and browser tests with loopback access, the tests passed. Those initial failures were environment failures, not counted as passing application tests.
+
+## Visual review
+
+Audio timing verification: ten domain tests pass after category sound timelines were added. `tests/browser/audio.spec.ts` passes in Chrome using the real AudioContext with instrumented source starts: a rocket joined at event age 2.5s starts its 2s burst cue at buffer offset 0.5s, repeated updates do not replay it, master mute attenuates the existing source, and timeline release clears stored cues. This establishes timing/control mechanics only, not listening-based sound quality.
+
+Graphics investigation follow-up: reproduced `VERTEX shader uniform block count exceeds GL_MAX_VERTEX_UNIFORM_BUFFERS (12)` after introducing skinned shopkeepers. Ordinary uniforms are now used for compatibility. Separately, the default BRDF lookup is loaded in original RGBD form, decoded by the PBR shader, avoiding asynchronous expansion callbacks after preview disposal. TypeScript passes. The rendering test now passes again: full scene readiness, both resident actors loaded, 72 effect cycles, no captured shader errors, and shopkeeper screenshot captured. Inspected `textile-shopkeeper.png`: resident is behind the counter; scene remains provisional procedural art. Browser workflows are being rerun with both fixes.
+
+Photo export was downloaded via Playwright and visually inspected: gold frame, Tamil/English greeting and hidden nameplates are present. Female shoulder-clearance adjustment removes the visible idle-pose gap; Wave render retains a clean shoulder drape, though blouse deformation still needs polish. A subsequent browser run exposed a null post-process manager during scene disposal; render-loop shutdown is now explicit before disposal. The two-browser workflow passed on the targeted rerun; this is not yet long-session teardown coverage.
+
+Latest Blender/browser pass: restored female hair faces and welded duplicate vertices; female onboarding screenshot now shows continuous dark hair. Corrected male shoulder proportions in both geometry and rest skeleton. Both exported GLBs pass finite-data and normalized-weight validation. Female export has 104,681 vertices and eleven draft clips; this remains too heavy for an accepted mobile production asset.
+
+After adding deterministic drifting smoke, `npm run build` and all **3 browser tests** passed. The new rendering test cycles **72 effects**, six at a time, covering all eighteen catalogue items repeatedly. It checks lower-frame visible pixels/luminance against the initial scene, checks event disposal, and rejects shader/WebGL console errors. This is bounded evidence against the disappearing-world regression, not a universal device or endurance guarantee. Current screenshots: `female-onboarding.png`, `active-firework-smoke.png`, `render-after-72-effects.png`. Smoke appearance and fireworks realism still need artistic refinement; the scene remains visibly procedural.
+
+Inspected rendered screenshots of the landing screen and active game. Corrected excessive camera distance, added CC0 asphalt PBR maps and plaster textures, preserved explicit development-art labeling. This review confirms the provisional geometry is visible; it does not establish photorealism or authentic traditional character quality.
+
+## Not verified / not complete
+
+Latest local review: seven domain tests and both browser workflows passed after preserving camera orbit parameters while following the player. TypeScript checks passed after that correction; the full production build passed immediately before it. The mobile screenshot now includes the player and street instead of a road-only view. Female onboarding confirms the local rig is loaded, with visible hair artifacts; the male remains too narrow. These assets are not visually accepted. The female draft is served only by Vite development middleware pending source provenance. The intermittent missing-world report still requires an extended rendering regression run; a successful short workflow does not prove it eliminated.
+
+- Eight simultaneously rendering browser sessions, physical mobile devices, Safari/iOS, Firefox, WebGPU, WAN latency, packet loss or long-running memory stability.
+- Numerical FPS or GPU-memory benchmarks. The in-game counter is an instantaneous reading only. No 60 FPS or device compatibility claim is made.
+- Full server-process crash/restart end-to-end; persistence serialization and guest restoration are tested, and startup recovery is implemented.
+- Listening-based validation of spatial audio, production-grade smoke, every visual effect's aesthetic fidelity or accessibility review.
+- Photo mapping, rigged Tamil clothing, NPC saree demonstrations and voice are absent and cannot pass their original acceptance tests.
+- Production deployment, TLS operation and independent security audit. The deployment files are provided but not deployed.
+
+The delivered code is a playable technical vertical slice, not completion of Milestone A or the full project brief.

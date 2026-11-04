@@ -1,0 +1,6 @@
+environment-brdf.png is the unmodified embedded EnvironmentBRDF texture from
+@babylonjs/core/Misc/brdfTextureTools.js (Babylon.js).
+Copyright (c) Microsoft Corporation.
+Licensed under the Apache License, Version 2.0.
+https://www.apache.org/licenses/LICENSE-2.0
+Source: https://github.com/BabylonJS/Babylon.js
