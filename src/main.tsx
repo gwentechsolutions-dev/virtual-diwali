@@ -1163,9 +1163,10 @@ function App() {
                       <details>
                         <summary>About this development build</summary>
                         <p className="small muted">
-                          Licensed reference characters: Babylon.js Assets (CC
-                          BY 4.0) and Indian Man In Dhoti by anandmohan662 (CC BY 4.0), modified with garment repairs and animations. Original scene geometry
-                          and experimental drapes. No facial photos are
+                          Supplied characters with custom rigs and animations.
+                          Male source: anandmohan662 (CC BY 4.0); female model
+                          supplied by the project owner. Original procedural
+                          scene geometry and decorations. No facial photos are
                           collected. Realistic Chennai models, tailored
                           garments, cloth animation and voice are not yet
                           complete.

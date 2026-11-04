@@ -2,11 +2,13 @@
 
 The complete game is **not implemented**. This audit retains the original scope; working infrastructure does not substitute for realism or missing interactions.
 
+Current character correction: both development and production now load `public/assets/characters/woman_saree_animated.glb`. The previous local-only female route, cartoon asset and cylindrical overlay are removed. A production-build browser test verifies the bundled 19-joint/11-clip model, and its rendered screenshot was reviewed. Earlier notes below describing a production fallback are superseded. Source provenance and final animation/art acceptance remain open in the table.
+
 | Original section | Evidence now | Incomplete or unverified requirements |
 |---|---|---|
 | 1–2 Objective / architecture | React/TS/Vite, Babylon, Colyseus server, persistent room records | Production visual realism; secure public deployment; optional physics integration |
 | 3 Opening / onboarding | Create/join, name/type, preview, codes, participant limits | Realistic female default; optional selfie workflow and consent; avatar editing beyond type |
-| 4 Avatars | Male GLB integrated with five draft clips; female local rig with eleven draft clips; cross-fades and synchronized running | Recognizable photo mapping; final fitted saree/veshti and skin weights; full polished gesture library; reset/deletion |
+| 4 Avatars | Bundled male/female GLBs in development and production; five male and eleven female draft clips; cross-fades and synchronized running | Recognizable photo mapping; final fitted saree/veshti and skin weights; full polished gesture library; reset/deletion |
 | 5 Neighborhood | Procedural Tamil-sign street, shops, lamps, kolam, balconies, wires, third-person controls | Production Chennai architecture/assets, scooters/motorcycles/autos, natural vegetation/garlands, complete interiors, skyline realism, golden-hour progression, reliable camera collision |
 | 6 Textile showroom | Rigged resident, timed purchase display with patterned fabric unfolding, queued transactions, preview/revert, wardrobe ownership and host coin grants | Natural hand contact and shelf retrieval; full pallu demonstration; trial mirrors; jewelry; eight saree varieties and complete male clothing meshes; clipping prevention |
 | 7 Cracker shop | Eighteen-item catalogue, server purchases, rigged resident, timed parcel presentation | Category-by-category audiovisual acceptance, finished packaging, natural handover/receipt animation |

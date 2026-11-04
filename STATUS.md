@@ -2,7 +2,11 @@
 
 **Playable technical vertical slice; Milestone A is not complete.** The original brief remains the acceptance criteria. This file deliberately records deviations rather than implying they are resolved.
 
-## Character integration update
+## Published character update
+
+Development and production now load the same bundled male and female GLBs. The supplied female saree character has replaced HVGirl; the old cylindrical dress overlay and development-only model route are removed. Her source provenance is recorded separately in ASSETS.md and remains unverified. Male has five draft clips and female eleven; final animation quality, garment contact and the full original brief remain unfinished. The requirements audit tracks remaining acceptance work.
+
+## Earlier character integration notes (superseded above)
 
 Latest local review: female hair topology restored and duplicate positions welded; browser preview no longer shows the spotted scalp. The local Vite build loads this supplied female draft, while production retains its fallback pending provenance. Male geometry and rest skeleton were widened together. Eighteen fireworks now include short sampled trails and seeded drifting smoke. Three browser tests pass, including repeated creation/disposal of 72 effects; production build passes. These updates supersede older eight-kind and reference-character descriptions below; the requirements audit remains authoritative for unfinished scope.
 

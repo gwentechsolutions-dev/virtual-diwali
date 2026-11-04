@@ -4,7 +4,6 @@ import { FireworkVisual } from "./fireworks";
 import { FestivalAudio } from "./audio";
 import {shopkeepers} from '../../shared/shopkeepers';
 import {ShopPresentation} from './shopPresentation';
-const localFemale=import.meta.env.DEV&&import.meta.env.VITE_LOCAL_FEMALE==='true';
 import {
   outfits,
   zones,
@@ -575,8 +574,8 @@ export class FestivalWorld {
     if(cached)return cached;
     if (!this.templateLoads.has(type)) {
       const pending = SceneLoader.LoadAssetContainerAsync(
-        type==='female' && localFemale ? '/local-character/' : '/assets/',
-        type === 'male' ? 'characters/indian_man_animated.glb' : type + '.glb',
+        '/assets/characters/',
+        type === 'male' ? 'indian_man_animated.glb' : 'woman_saree_animated.glb',
         this.scene,
       ).then(asset=>{
       if (this.disposed) {
@@ -631,47 +630,10 @@ export class FestivalWorld {
       root.position.set(p.x, 0, p.z);
       for (const m of meshes) this.shadows.addShadowCaster(m);
       model.animationGroups.forEach((a) => a.stop());
-      // Experimental cloth drape overlay. Replace with licensed rigged garments for production.
-      const cloth = this.mat(
-        "silk-" + p.id,
-        outfits.find((o) => o.id === p.outfit)?.color ?? "#eee0bc",
-      );
-      cloth.specularColor = new Color3(0.45, 0.36, 0.2);
-      cloth.specularPower = 48;
-      const paths: Vector3[][] = [];
-      for (let row = 0; row < 12; row++) {
-        const y = 0.15 + row * 0.085,
-          rad = 0.29 + (1 - row / 11) * 0.11;
-        paths.push(
-          Array.from({ length: 49 }, (_, i) => {
-            const a = (i / 48) * Math.PI * 2,
-              r = rad + Math.sin(a * 16) * 0.013;
-            return new Vector3(Math.cos(a) * r, y, Math.sin(a) * r);
-          }),
-        );
-      }
-      const skirt = MeshBuilder.CreateRibbon(
-        "experimental-drape",
-        { pathArray: paths, sideOrientation: Mesh.DOUBLESIDE },
-        this.scene,
-      );
-      skirt.material = cloth;
-      skirt.parent = root;
-      const border = MeshBuilder.CreateTorus(
-        "zari-border",
-        { diameter: 0.8, thickness: 0.035, tessellation: 48 },
-        this.scene,
-      );
-      border.position.y = 0.17;
-      border.material = this.mat("zari", "#b9954e");
-      border.parent = root;
-      const garmentMaterials: (StandardMaterial | PBRMaterial)[] = [cloth];
-      if(p.type==='male' || localFemale) {
-        skirt.dispose();border.dispose();cloth.dispose();garmentMaterials.length=0;
-        for(const mesh of meshes) {
-          if((mesh.name.includes('Object_91') || (p.type==='female' && /saree|PALU|BLOUSE/i.test(mesh.name))) && mesh.material instanceof PBRMaterial) {
-            garmentMaterials.push(mesh.material);
-          }
+      const garmentMaterials: (StandardMaterial | PBRMaterial)[] = [];
+      for(const mesh of meshes) {
+        if((mesh.name.includes('Object_91') || (p.type==='female' && /saree|PALU|BLOUSE/i.test(mesh.name))) && mesh.material instanceof PBRMaterial) {
+          garmentMaterials.push(mesh.material);
         }
       }
       this.actors.set(p.id, {
@@ -816,9 +778,7 @@ export class FestivalWorld {
               g.name
                 .toLowerCase()
                 .includes(
-                  gesture === "Dance" && p.type === "female" && !localFemale
-                    ? "samba"
-                    : desired,
+                  desired,
                 ),
             ) ??
             names.find((g) =>

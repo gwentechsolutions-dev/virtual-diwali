@@ -1,12 +1,12 @@
 # Virtual Chennai Deepavali 2026
 
-A working **first multiplayer vertical slice**, built with React, TypeScript, Babylon.js and Colyseus. This is **not the completed realism milestone**: the current environment is an original procedural architectural study, the characters are licensed reference rigs, and clothing is an experimental unrigged drape overlay. Do not describe these as realistic Tamil characters or a finished Chennai environment.
+A working **first multiplayer vertical slice**, built with React, TypeScript, Babylon.js and Colyseus. The supplied animated male and female characters are bundled for both development and production. The environment and animation/clothing quality remain works in progress; the full realism milestone is unfinished.
 
 ## Run locally
 
 Requires Node.js 22.14 or newer and npm.
 
-Source Blender models and private working assets in `assets-source/` are excluded from this public repository. A fresh checkout uses the bundled licensed female reference. If you have the supplied local rig, place it at `assets-source/characters/female/female-rigged-draft.glb` before starting Vite to enable its development preview. The Blender scripts require their original source files; their output models are not all included. The full feature status is tracked in `docs/REQUIREMENTS-AUDIT.md`.
+Source Blender models and private working assets in `assets-source/` are excluded from this public repository. Both exported character GLBs are included under `public/assets/characters/`; a fresh checkout uses the same models as production. The Blender scripts require the original source files to rebuild them. Asset provenance is recorded in `ASSETS.md`, and full feature status in `docs/REQUIREMENTS-AUDIT.md`.
 
 ```sh
 npm ci

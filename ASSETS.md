@@ -4,7 +4,7 @@ Downloaded 4 November 2026. Models are reference assets, not claims of authentic
 
 | Local file | Source / attribution | License | Changes and role |
 |---|---|---|---|
-| `public/assets/female.glb` | [HVGirl — Babylon.js Assets contributors](https://github.com/BabylonJS/Assets/blob/master/meshes/HVGirl.glb) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), repository default | Renamed only; scaled/instantiated at runtime, independent experimental cloth overlay. Stylized female reference with Idle, Samba, Walking, WalkingBack. |
+| `public/assets/characters/woman_saree_animated.glb` | User-supplied female saree model; derived from the supplied `kangana ranaout.glb` | Source license not embedded; original listing/provenance remains unverified. No CC license is assigned to this supplied model. | New 19-bone rig, eleven draft clips, normalized skin weights, hair and shoulder-drape repairs; bundled at the user's request to replace the old production design. Original source files remain local. |
 | `public/assets/male.glb` | [Xbot — Babylon.js Assets contributors](https://github.com/BabylonJS/Assets/blob/master/meshes/Xbot.glb) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), repository default | Renamed only; scaled/instantiated at runtime with separate overlay. Mannequin reference, not a realistic human. Includes idle/walk/run and pose clips. |
 | `public/assets/asphalt-diffuse.jpg` | [Asphalt 02 — Poly Haven](https://polyhaven.com/a/asphalt_02) | [CC0](https://polyhaven.com/license) | Original 1K diffuse surface, tiled at runtime. |
 | `public/assets/asphalt-normal.jpg` | Same Asphalt 02 asset | CC0 | Original OpenGL normal map. |
