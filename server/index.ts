@@ -41,6 +41,7 @@ const cmdSchema = z.object({
     "center",
     "lights",
     "chat",
+    "photo",
   ]),
   item: z.string().max(40).optional(),
   x: z.number().finite().optional(),
@@ -117,6 +118,9 @@ class CelebrationRoom extends Room {
           p = this.members.get(c.sessionId)!;
         let result: unknown = { message: "Done" };
         switch (m.action) {
+          case 'photo':
+            result=this.world.transaction(p,m.id,()=>{this.world.photo(p,m.item??'');return {message:'Photo booth updated'};});
+            break;
           case "buy":
             result = this.world.buy(p, m.item ?? "", m.id);
             break;

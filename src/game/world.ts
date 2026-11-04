@@ -34,6 +34,9 @@ export class FestivalWorld {
   stick = { x: 0, y: 0 };
   lookStick={x:0,y:0};
   touchRun=false;
+  cameraMode:'follow'|'portrait'|'group'='follow';
+  private photoViewId='';
+  private savedPhotoView?:{mode:'follow'|'portrait'|'group';alpha:number;beta:number;radius:number;target:Vector3};
   mobile=matchMedia('(pointer: coarse)').matches||innerWidth<=700;
   glow:GlowLayer;
   inputBlocked = false;
@@ -671,6 +674,19 @@ export class FestivalWorld {
       if (self) this.camera.setTarget(new Vector3(self.x, 1.2, self.z), false, true, true);
     }
     this.snapshot = s;
+    if(!this.preview){
+      const photo=s.photoScene;
+      const id=photo&&photo.end>this.now()&&photo.participants.includes(this.selfId)?photo.id:'';
+      if(id!==this.photoViewId){
+        if(id){
+          this.savedPhotoView={mode:this.cameraMode,alpha:this.camera.alpha,beta:this.camera.beta,radius:this.camera.radius,target:this.camera.target.clone()};
+          this.setCameraPreset('group');
+        }else if(this.savedPhotoView){
+          const view=this.savedPhotoView;this.cameraMode=view.mode;this.camera.alpha=view.alpha;this.camera.beta=view.beta;this.camera.radius=view.radius;this.camera.setTarget(view.target,false,true,true);this.savedPhotoView=undefined;
+        }
+        this.photoViewId=id;
+      }
+    }
     const residents=this.preview?s.players:[...s.players,...shopkeepers(s.players,this.now(),s.shopActions)];
     for (const p of residents) void this.addActor(p);
     for (const [id, a] of this.actors)
@@ -828,7 +844,7 @@ export class FestivalWorld {
         }
       }
       const self = this.actors.get(this.selfId);
-      if (self && !this.preview)
+      if (self && !this.preview&&this.cameraMode!=='group')
         this.camera.setTarget(
           Vector3.Lerp(
             this.camera.target,
@@ -972,6 +988,21 @@ export class FestivalWorld {
   lookAtSky(){
     this.camera.beta=2.45;
     this.camera.target.y=Math.max(1.2,.7-this.camera.radius*Math.cos(this.camera.beta));
+  }
+  setCameraPreset(preset:'follow'|'portrait'|'group'){
+    this.cameraMode=preset;
+    const player=this.snapshot?.players.find(p=>p.id===this.selfId);
+    this.camera.alpha=preset==='portrait'?Math.PI/2-(player?.yaw??Math.PI):-Math.PI/2;
+    this.camera.beta=preset==='group'?1.12:1.23;
+    if(preset==='group'){
+      const count=this.snapshot?.photoScene?.participants.length??this.snapshot?.players.filter(p=>p.photoReady).length??1;
+      const width=Math.max(2,Math.min(6,count)*.85+1);
+      this.camera.radius=Math.min(23,Math.max(6,width/(2*Math.tan(this.camera.fov/2)*this.engine.getAspectRatio(this.camera))*1.25));
+      this.camera.setTarget(new Vector3(0,1,17.5),false,true,true);
+    }else {
+      this.camera.radius=preset==='portrait'?3:7;
+      this.camera.setTarget(new Vector3(player?.x??0,1.2,player?.z??15),false,true,true);
+    }
   }
   dispose() {
     this.disposed = true;

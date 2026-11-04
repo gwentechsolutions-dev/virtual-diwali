@@ -157,6 +157,7 @@ export interface PublicPlayer {
   yaw: number;
   moving: boolean;
   running?: boolean;
+  photoReady?:boolean;
   emote: string;
   emoteUntil: number;
   online: boolean;
@@ -168,6 +169,7 @@ export interface SelfState {
   wardrobe: string[];
 }
 export interface Snapshot {
+  photoScene?:PhotoScene;
   shopActions?: ShopAction[];
   time: number;
   code: string;
@@ -179,6 +181,7 @@ export interface Snapshot {
   finaleAt: number;
   lights: boolean;
 }
+export interface PhotoScene {id:string;start:number;end:number;pose:'Wave'|'Idle';participants:string[]}
 export interface ShopAction {
   id:string;
   shop:'textiles'|'crackers';

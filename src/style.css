@@ -1724,3 +1724,6 @@ summary {
 @media (pointer:coarse) and (max-height:540px){
  .thumbstick{bottom:calc(88px + env(safe-area-inset-bottom));width:96px;height:96px}.touch-interact{bottom:calc(200px + env(safe-area-inset-bottom));height:42px}.location-card,.mini-map,.controls-hint{display:none}.voice-controls{left:calc(130px + env(safe-area-inset-left));bottom:88px}.game-header{padding:10px 18px}.bottom-hud{bottom:8px;gap:6px}.dock{padding:5px 8px}.dock button{min-width:59px;padding:8px 5px;font-size:7px}.right-rail{top:58px;right:50%;transform:translateX(50%);flex-direction:row;gap:6px}.right-rail button{width:36px;height:36px}
 }
+
+.photo-moment{position:absolute;top:22%;left:50%;transform:translateX(-50%);display:grid;gap:10px;justify-items:center;max-width:90%;padding:18px 24px;background:#17232deb;border:1px solid #d9b56e88;border-radius:14px;pointer-events:auto;text-align:center}.photo-moment strong{color:#ffe0a0}.photo-moment button{font-size:12px}
+@media(max-width:700px){.photo-moment{top:18%;padding:12px;gap:7px;width:260px}.photo-moment strong{font-size:13px}}

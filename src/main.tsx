@@ -53,6 +53,7 @@ type Panel =
   | "settings"
   | "map"
   | "emotes"
+  | "photo"
   | null;
 function App() {
   const canvas = useRef<HTMLCanvasElement>(null),
@@ -96,6 +97,7 @@ function App() {
     [copied, setCopied] = useState(false),
     [purchase, setPurchase] = useState<string | null>(null);
   const stateRef = useRef({ stage, panel, placing, selected });
+  const [photoPose,setPhotoPose]=useState<'Wave'|'Idle'>('Wave');
   stateRef.current = { stage, panel, placing, selected };
   const me = snapshot?.players.find((p) => p.id === self?.id),
     host = !!self && snapshot?.host === self.id;
@@ -258,6 +260,7 @@ function App() {
     friends: "Celebrating together",
     chat: "Neighbourhood chat",
     settings: "Make yourself comfortable",
+    photo:'Festival photo booth',
     map: "Around the neighbourhood",
     emotes: "Say it with a gesture",
   };
@@ -692,6 +695,11 @@ function App() {
             onMove={(x,y,run)=>{if(game.current){game.current.stick={x,y};game.current.touchRun=run;}}}
             onLook={(x,y)=>{if(game.current)game.current.lookStick={x,y};}}
             onInteract={()=>game.current?.onInteract()}/>
+          {snapshot?.photoScene?.participants.includes(self?.id??'')&&<div className="photo-moment" role="status">
+            <strong>{now<snapshot.photoScene.start?`Photo pose in ${Math.ceil((snapshot.photoScene.start-now)/1000)}`:'Strike a pose — save your photo!'}</strong>
+            <button className="primary" disabled={now<snapshot.photoScene.start} onClick={()=>game.current?.screenshot()}>Save group photo</button>
+            <button className="text-button" onClick={()=>command('photo',{item:'leave'})}>Leave photo moment</button>
+          </div>}
           {panel && (
             <div className="panel-scrim" onClick={() => setPanel(null)}>
               <aside
@@ -905,6 +913,7 @@ function App() {
                       <p className="muted">
                         Send an invitation. Share the evening.
                       </p>
+                      <button className="secondary full" onClick={()=>setPanel('photo')}><Camera size={17}/> Open photo booth</button>
                       <div className="invite-card">
                         <span>YOUR PRIVATE ROOM</span>
                         <strong>{code}</strong>
@@ -1034,6 +1043,16 @@ function App() {
                         )}
                     </>
                   )}
+                  {panel==='photo'&&<>
+                    <p className="muted">Join the photo area to take part. The host can arrange only guests who have joined. You can leave at any time.</p>
+                    <button className="primary full" onClick={()=>command('photo',{item:me?.photoReady?'leave':'ready'})}>{me?.photoReady?'Leave photo area':'Join photo area'}</button>
+                    <p>{snapshot?.players.filter(p=>p.photoReady).map(p=>p.name).join(', ')||'No one has joined the photo yet.'}</p>
+                    {host&&<><label>Group pose<select value={photoPose} onChange={e=>setPhotoPose(e.target.value as 'Wave'|'Idle')}><option value="Wave">Wave together</option><option value="Idle">Stand together</option></select></label>
+                      <button className="primary full" disabled={!snapshot?.players.some(p=>p.photoReady)||!!snapshot?.photoScene} onClick={()=>{command('photo',{item:photoPose});setPanel(null);}}>Start photo countdown</button></>}
+                    <p className="eyebrow">CAMERA PRESETS</p>
+                    <div className="button-row">{(['follow','portrait','group'] as const).map(preset=><button key={preset} className="secondary" onClick={()=>{game.current?.setCameraPreset(preset);setPanel(null);}}>{preset==='follow'?'Follow':preset==='portrait'?'Portrait':'Group view'}</button>)}</div>
+                    <button className="secondary full" onClick={()=>game.current?.screenshot()}><Camera size={17}/> Save framed photo</button>
+                  </>}
                   {panel === "chat" && (
                     <>
                       <p className="muted">
@@ -1133,8 +1152,8 @@ function App() {
                         {sound ? "Mute sound" : "Enable sound"}
                       </button>
                       <p className="muted">
-                        Voice chat is not configured. Use neighbourhood text
-                        chat to keep in touch.
+                        Join optional voice using the Voice chat control. Text
+                        chat is always available.
                       </p>
                       <div className="stats">
                         <span>Current render rate</span>
@@ -1157,6 +1176,7 @@ function App() {
                       >
                         <Camera size={17} /> Save a clean group photo
                       </button>
+                      <button className="secondary full" onClick={()=>setPanel('photo')}>Open photo booth</button>
                       <button className="danger-link" onClick={leave}>
                         <LogOut size={16} /> Leave celebration
                       </button>

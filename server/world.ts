@@ -11,6 +11,7 @@ import {
   type SelfState,
   type Outcome,
   type ShopAction,
+  type PhotoScene,
 } from "../shared/catalog.js";
 export interface Member extends PublicPlayer {
   secret: string;
@@ -21,6 +22,7 @@ export interface Member extends PublicPlayer {
   banned: boolean;
 }
 export interface SavedWorld {
+  photoScene?:PhotoScene;
   shopActions?: ShopAction[];
   code: string;
   host: string;
@@ -104,6 +106,8 @@ export class World {
     return p;
   }
   move(p: Member, dx: number, dz: number, run: boolean, dt: number) {
+    const photo=this.data.photoScene;
+    if(photo&&photo.end>Date.now()&&photo.participants.includes(p.id)){p.moving=false;p.running=false;return;}
     const len = Math.hypot(dx, dz);
     if (len > 1) {
       dx /= len;
@@ -220,6 +224,27 @@ export class World {
     p.emote = name;
     p.emoteUntil = Date.now() + 5000;
   }
+  photo(p:Member,action:string,now=Date.now()){
+    if(action==='leave'){
+      p.photoReady=false;
+      if(this.data.photoScene)this.data.photoScene.participants=this.data.photoScene.participants.filter(id=>id!==p.id);
+      return;
+    }
+    if(action==='ready'){
+      if(this.data.photoScene&&this.data.photoScene.end>now)throw Error('Wait for the current photo moment to finish.');
+      p.photoReady=true;p.x=0;p.z=16;p.moving=false;p.running=false;return;
+    }
+    if(p.id!==this.data.host)throw Error('Only the host can start a group photo.');
+    if(action!=='Wave'&&action!=='Idle')throw Error('Choose a photo pose.');
+    if(this.data.photoScene&&this.data.photoScene.end>now)throw Error('A photo moment is already active.');
+    const guests=Object.values(this.data.members).filter(m=>m.online&&m.photoReady);
+    if(!guests.length)throw Error('Invite friends to join the photo area first.');
+    guests.forEach((m,i)=>{
+      const row=Math.floor(i/6),columns=Math.min(6,guests.length-row*6);
+      m.x=(i%6-(columns-1)/2)*.85;m.z=17+row*1.1;m.yaw=Math.PI;m.moving=false;m.running=false;
+    });
+    this.data.photoScene={id:randomUUID(),start:now+3000,end:now+11000,pose:action,participants:guests.map(m=>m.id)};
+  }
   hostAction(p: Member, action: string, target?: string, value?: number) {
     if (p.id !== this.data.host) throw Error("Only the host can do that.");
     switch (action) {
@@ -269,11 +294,16 @@ export class World {
     }
   }
   snapshot(now = Date.now()): Snapshot {
+    if(this.data.photoScene&&this.data.photoScene.end<=now){
+      for(const id of this.data.photoScene.participants){const p=this.data.members[id];if(p)p.photoReady=false;}
+      this.data.photoScene=undefined;
+    }
     this.data.shopActions=(this.data.shopActions??[]).filter(a=>a.start+a.duration>now);
     this.data.events = this.data.events.filter(
       (e) => e.start + e.duration + 2000 > now,
     );
     return {
+      photoScene:this.data.photoScene,
       shopActions:this.data.shopActions,
       time: now,
       code: this.data.code,
@@ -283,7 +313,11 @@ export class World {
       players: Object.values(this.data.members)
         .filter((p) => p.online)
         .map(
-          ({ secret, coins, inventory, wardrobe, receipts, banned, ...p }) => p,
+          ({ secret, coins, inventory, wardrobe, receipts, banned, ...p }) => {
+            const photo=this.data.photoScene;
+            if(photo?.participants.includes(p.id)){p.emote=now>=photo.start&&photo.pose!=='Idle'?photo.pose:'';p.emoteUntil=photo.end;}
+            return p;
+          },
         ),
       events: this.data.events,
       finaleAt: this.data.finaleAt,
